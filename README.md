@@ -25,9 +25,9 @@ broadway.New("./blog").
 ```go
 func Concat(filepath string, ext string) broadway.Fn {
 
-	return func(b *broadway.App) error {
-      // .. do something with `b.Files`
-  }
+    return func(b *broadway.App) error {
+        // .. do something with `b.Files`
+    }
 }
 
 broadway.New("./dir").
