@@ -16,12 +16,22 @@ func printFiles() broadway.Fn {
 	}
 }
 
+func printOutput() broadway.Fn {
+	return func(app *broadway.App) error {
+		for _, f := range app.Files {
+			fmt.Printf("%s: %s\n", f.Path, f.Contents)
+		}
+		return nil
+	}
+}
+
 func Example() {
 
-	broadway.New(".").
-		Use(p.Concat("dest.go", ".go")).
-		Use(printFiles()).
-		Build("./out")
+	broadway.New("./test").
+		Use(p.Matilde("*.js")).
+		// Use(p.Concat("dest.go", ".go")).
+		Use(printOutput()).
+		Build("./test/out")
 
 	// Output:
 	// README.md

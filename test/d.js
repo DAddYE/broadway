@@ -1,0 +1,3 @@
+//= import wrong
+
+hello(d)

@@ -20,12 +20,14 @@ type Fn func(b *App) error
 
 type File struct {
 	Path     string
+	Name     string
+	Dir      string
+	Ext      string
 	Contents []byte
-	Attrs    FileAttrs
-	Mode     os.FileMode
+	Data     interface{}
+	Mode     os.FileMode // Not only a shortcut but because we can create files without worring about create a FileInfo
+	Stat     os.FileInfo
 }
-
-type FileAttrs map[string]string
 
 type App struct {
 	Dir   string  // working directory
@@ -47,6 +49,15 @@ func (b *App) Use(fn Fn) *App {
 	return b
 }
 
+func (b *App) FindByStat(stat os.FileInfo) *File {
+	for _, file := range b.Files {
+		if os.SameFile(file.Stat, stat) {
+			return file
+		}
+	}
+	return nil
+}
+
 func (b *App) Walk(ch chan *File) {
 	filepath.Walk(b.Dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -63,7 +74,15 @@ func (b *App) Walk(ch chan *File) {
 			return err
 		}
 
-		ch <- &File{path, buff, make(FileAttrs), info.Mode()}
+		ch <- &File{
+			Path:     path,
+			Name:     info.Name(),
+			Dir:      filepath.Dir(path),
+			Ext:      filepath.Ext(path),
+			Contents: buff,
+			Mode:     info.Mode(),
+			Stat:     info,
+		}
 
 		return nil
 
